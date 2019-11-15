@@ -144,5 +144,7 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
             Log.v("az", e.toString());
         }
+
     }
 }
+//android/os資料庫皆採用SQLite
