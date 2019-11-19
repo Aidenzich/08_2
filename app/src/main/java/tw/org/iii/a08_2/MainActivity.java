@@ -7,8 +7,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -26,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences.Editor editor;
     private TextView content;
     private File sdroot, approot;
-
+    private MyDBHelper myDBHelper;
+    private SQLiteDatabase db;
     private void init() {
         content = findViewById(R.id.content);
         sp = getSharedPreferences("az", MODE_PRIVATE); //曾對檔名為"az"的檔案進行讀資料的動作
@@ -39,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         if (approot.exists()) {
             approot.mkdirs(); //mkdir建出此路徑，"+s"副目錄不在建立副目錄
         }
+
+        myDBHelper = new MyDBHelper(this,"mydb",null,1);
+        db = myDBHelper.getReadableDatabase();
     }
 
     @Override
@@ -145,6 +152,49 @@ public class MainActivity extends AppCompatActivity {
             Log.v("az", e.toString());
         }
 
+
+
+    }
+
+    // Query
+    public void test7(View view) {
+        Cursor c = db.query("user", null,null,null,null,null,null);
+        //要全部資料都填入才行
+        while (c.moveToNext()){
+            String id = c.getString(0);//如何決定getXX的型別?有關於sql語法的運算/字串的function/年月日的計算，與程式無關
+            String  username= c.getString(1);
+            String tel = c.getString(2);
+            String birthday = c.getString(3);
+            Log.v("az",id + username + tel + birthday);
+
+        }
+    }
+
+    public void test8(View view) {
+        //String sql = insert into user(username,tel,birthday) values("aa,"bb,"cc);
+        // db.execute(sql)
+        ContentValues values = new ContentValues(); //用ContentValues的方式避免解碼攻擊
+        values.put("username","aa");
+        values.put("tel","1234567");
+        values.put("birthday","2000-01-02");
+        db.insert("user",null,values);
+        test7(null);
+    }
+
+
+    public void test9(View view) {
+        //delete from user where id = 2 and username ="brad"
+        db.delete("user","id =? and username =?}",new String[]{"2","brad"});
+        test7(null);            //避開風險 //透過sql字法來處理資料
+    }
+
+    public void test10(View view) {
+        //update user set username = 'peter',tel='0912-123456' where id =4;
+        ContentValues values = new ContentValues();
+        values.put("username","peter");
+        values.put("tel","0912-123456");
+        db.update("user",null,"id=?",new String[]{"4"});
+        test7(null);
     }
 }
 //android/os資料庫皆採用SQLite
