@@ -198,3 +198,5 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 //android/os資料庫皆採用SQLite
+//不可以使用程式來處理資料庫，當資料過多時，程式越跑越慢
+//SQL可以做的事要交給SQL做
